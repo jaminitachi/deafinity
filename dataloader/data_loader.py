@@ -157,7 +157,7 @@ class AV_Dataset(Dataset):
         audio_feature = self.parse_audio(self.audio_paths[index],self.augment_methods)
         transcript = self.parse_transcript(self.transcripts[index])
         korean_transcript = self.parse_korean_transcripts(self.korean_transcripts[index])
-        return video_feature, audio_feature, transcript, korean_transcript,
+        return video_feature, audio_feature, transcript, korean_transcript
 
     def parse_transcript(self, transcript):
         tokens = transcript.split(' ')

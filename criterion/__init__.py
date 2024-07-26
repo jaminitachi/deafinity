@@ -1,0 +1,2 @@
+from criterion.label_smoothed_cross_entropy import LabelSmoothedCrossEntropyLoss
+from criterion.hybrid_ctc_ce import JointCTCCrossEntropyLoss

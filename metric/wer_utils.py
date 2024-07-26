@@ -6,12 +6,13 @@
 # LICENSE file in the root directory of this source tree.
 
 from __future__ import absolute_import, division, print_function, unicode_literals
-
+import torch
 import re
 from collections import deque
 from enum import Enum
-
+from itertools import groupby
 import numpy as np
+import pdb
 
 
 """
@@ -19,7 +20,44 @@ import numpy as np
     Alignments, as well as more granular metrics like
     deletion, insersion and substitutions.
 """
+def arr_to_toks(arr):
+    toks = []
+    for a in arr:
+        toks.append(Token(str(a), 0.0, 0.0))
+    return toks
 
+
+def compute_ctc_uer(logprobs, input_lengths, blank_idx):
+    """
+        Computes utterance error rate for CTC outputs
+
+        Args:
+            logprobs: (Torch.tensor)  N, T1, D tensor of log probabilities out
+                of the encoder
+            targets: (Torch.tensor) N, T2 tensor of targets
+            input_lengths: (Torch.tensor) lengths of inputs for each sample
+            target_lengths: (Torch.tensor) lengths of targets for each sample
+            blank_idx: (integer) id of blank symbol in target dictionary
+
+        Returns:
+            batch_errors: (float) errors in the batch
+            batch_total: (float)  total number of valid samples in batch
+    """
+    batch_errors = 0.0
+    batch_total = 0.0
+    for b in range(logprobs.shape[0]):
+        predicted = logprobs[b][: input_lengths[b]].argmax(1).tolist()
+        # dedup predictions
+        predicted = [p[0] for p in groupby(predicted)]
+        # remove blanks
+        nonblanks = []
+        for p in predicted:
+            if p != blank_idx:
+                nonblanks.append(p)
+        predicted = nonblanks
+    outputs = torch.IntTensor(predicted).long().reshape(logprobs.shape[0],-1)
+    
+    return outputs
 
 class Code(Enum):
     match = 1

@@ -70,7 +70,3 @@ def build_Transformer_model(num_classes,
             eos_id=eos_id,
             num_heads=num_heads,
             max_length=max_length)
-
-
-
-
